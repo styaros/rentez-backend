@@ -13,6 +13,11 @@ router.get(
   controller.getAllReservationsByUserId
 );
 router.put("/:id", auth.verifyCompanyRole, controller.updateReservation);
+router.put(
+  "/finished/:id",
+  auth.verifyIsAuthorized,
+  controller.updateReservationStatus
+);
 router.delete("/:id", auth.verifyCompanyRole, controller.deleteReservation);
 
 module.exports = router;

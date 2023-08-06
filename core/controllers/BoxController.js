@@ -1,16 +1,19 @@
+const { Op } = require("sequelize");
+const Sportground = require("../models/Sportground");
+const Reservation = require("../models/Reservation");
 const Box = require("../models/Box");
 
 const createBox = async (req, res) => {
   const sportground_id = req.params.sportgroundId;
 
   try {
-    const { number, description, hour_price } = req.body;
+    const { number, description, hourPrice } = req.body;
 
     const newBox = await Box.create({
       sportground_id,
       number,
       description,
-      hour_price,
+      hour_price: hourPrice,
     });
 
     res.json(newBox);
@@ -75,11 +78,59 @@ const getBoxesBySportgroundId = async (req, res) => {
   }
 };
 
+const getAvailableBoxesInSportground = async (req, res) => {
+  const sportgroundId = req.params.sportgroundId;
+
+  try {
+    const { startDate, endDate } = req.body;
+
+    startDateParsed = new Date(startDate);
+    endDateParsed = new Date(endDate);
+
+    const boxes = await Box.findAll({
+      where: { sportground_id: sportgroundId },
+    });
+
+    const overlappingReservations = await Reservation.findAll({
+      where: {
+        status: "active",
+        [Op.and]: [
+          {
+            start_date: {
+              [Op.notBetween]: [startDate, endDate],
+            },
+          },
+          {
+            end_date: {
+              [Op.notBetween]: [startDate, endDate],
+            },
+          },
+          { start_date: { [Op.not]: startDate } },
+          { end_date: { [Op.not]: endDate } },
+        ],
+      },
+    });
+
+    const bookedBoxIds = overlappingReservations.map(
+      (reservation) => reservation.box_id
+    );
+
+    const availableBoxes = boxes.filter(
+      (box) => !bookedBoxIds.includes(box.id)
+    );
+
+    res.json(availableBoxes);
+  } catch (error) {
+    console.error("Error retrieving available boxes:", error);
+    throw error;
+  }
+};
+
 const updateBox = async (req, res) => {
   const boxId = req.params.id;
 
   try {
-    const { number, description, hour_price } = req.body;
+    const { number, description, hourPrice } = req.body;
     const box = await Box.findByPk(boxId);
 
     if (!box) {
@@ -88,7 +139,7 @@ const updateBox = async (req, res) => {
 
     box.number = number;
     box.description = description;
-    box.hour_price = hour_price;
+    box.hour_price = hourPrice;
 
     await box.save();
 
@@ -127,6 +178,7 @@ module.exports = {
   getAllBoxes,
   getBoxById,
   getBoxesBySportgroundId,
+  getAvailableBoxesInSportground,
   updateBox,
   deleteBox,
 };

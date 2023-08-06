@@ -18,6 +18,10 @@ const Reservation = sequelize.define(
     end_date: {
       type: DataTypes.DATE,
     },
+    status: {
+      type: DataTypes.ENUM("active", "finished"),
+      defaultValue: "active",
+    },
   },
   {
     timestamps: false,

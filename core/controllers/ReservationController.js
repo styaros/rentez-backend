@@ -4,13 +4,13 @@ const createReservation = async (req, res) => {
   const boxId = req.params.boxId;
 
   try {
-    const { user_id, start_date, end_date } = req.body;
+    const { userId, startDate, endDate } = req.body;
 
     const newReservation = await Reservation.create({
       box_id: parseInt(boxId),
-      user_id: parseInt(user_id),
-      start_date,
-      end_date,
+      user_id: parseInt(userId),
+      start_date: startDate,
+      end_date: endDate,
     });
     res.status(201).json(newReservation);
   } catch (error) {
@@ -71,7 +71,7 @@ const getAllReservationsByUserId = async (req, res) => {
 
 const updateReservation = async (req, res) => {
   const reservationId = req.params.id;
-  const { start_date, end_date } = req.body;
+  const { startDate, endDate } = req.body;
 
   try {
     const reservation = await Reservation.findByPk(reservationId);
@@ -79,8 +79,29 @@ const updateReservation = async (req, res) => {
       return res.status(404).json({ error: "Reservation not found." });
     }
 
-    reservation.start_date = start_date;
-    reservation.end_date = end_date;
+    reservation.start_date = startDate;
+    reservation.end_date = endDate;
+    await reservation.save();
+
+    res.json(reservation);
+  } catch (error) {
+    console.error("Error updating reservation:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the reservation." });
+  }
+};
+
+const updateReservationStatus = async (req, res) => {
+  const reservationId = req.params.id;
+
+  try {
+    const reservation = await Reservation.findByPk(reservationId);
+    if (!reservation) {
+      return res.status(404).json({ error: "Reservation not found." });
+    }
+
+    reservation.status = "finished";
     await reservation.save();
 
     res.json(reservation);
@@ -117,5 +138,6 @@ module.exports = {
   getReservationById,
   getAllReservationsByUserId,
   updateReservation,
+  updateReservationStatus,
   deleteReservation,
 };
