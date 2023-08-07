@@ -3,11 +3,17 @@ const cors = require("cors");
 
 const routes = require("./core/routes/index");
 
-const PORT = process.env.PORT || 4000;
+const PORT = 4000;
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: "http://localhost:3000",
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 
 app.use("/companies", routes.companyRoutes);

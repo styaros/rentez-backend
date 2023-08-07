@@ -70,7 +70,7 @@ const loginCompany = async (req, res) => {
       { expiresIn: "30d" }
     );
 
-    res.json({ token });
+    res.json({ company, token });
   } catch (error) {
     console.error("Error logging in company:", error);
     res

@@ -68,7 +68,7 @@ const loginUser = async (req, res) => {
       { expiresIn: "30d" }
     );
 
-    res.json({ token });
+    res.json({ user, token });
   } catch (error) {
     console.error("Error logging in user:", error);
     res
