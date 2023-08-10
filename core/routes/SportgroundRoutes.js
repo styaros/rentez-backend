@@ -4,7 +4,7 @@ const auth = require("../../middlewire/auth");
 
 const router = Router();
 
-router.post("/", auth.verifyCompanyRole, controller.createSportground);
+router.post("/:id", auth.verifyCompanyRole, controller.createSportground);
 router.get("/", controller.getAllSportgrounds);
 router.get("/:id", controller.getSportgroundById);
 router.get("/company/:companyId", controller.getSportgroundsByCompanyId);

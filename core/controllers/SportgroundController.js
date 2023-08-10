@@ -5,6 +5,8 @@ const Company = require("../models/Company");
 const SportgroundType = require("../models/SportgroundType");
 
 const createSportground = async (req, res) => {
+  const companyId = req.params.id;
+
   try {
     const {
       address,
@@ -13,8 +15,6 @@ const createSportground = async (req, res) => {
       workEndTime,
       sportgroundTypeId,
     } = req.body;
-    const token = req.headers.authorization;
-    const companyId = jwt.verify(token.replace("Bearer ", ""), secretKey).id;
 
     const body = {
       company_id: companyId,
